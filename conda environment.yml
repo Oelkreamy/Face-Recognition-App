@@ -7,7 +7,6 @@ dependencies:
   - face-recognition
   - numpy
   - opencv
-  - cmake
   - pillow
   - click
   - pip
