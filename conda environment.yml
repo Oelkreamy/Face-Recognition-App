@@ -1,15 +1,15 @@
-name: my_env
+name: myenv
 channels:
   - conda-forge
-  - defaults
 dependencies:
   - python=3.9
   - dlib
   - face-recognition
   - numpy
+  - opencv
   - cmake
   - pillow
   - click
   - pip
   - pip:
-      - opencv-python  # Installs cv2 separately
+      - opencv-python-headless
