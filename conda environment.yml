@@ -11,6 +11,8 @@ dependencies:
   - pillow
   - click
   - pip
+  - streamlit
+  - streamlit_webrtc
   - pip:
       - opencv-python-headless
       - protobuf==3.20.*
