@@ -4,4 +4,4 @@ libboost-all-dev
 freeglut3-dev
 cmake
 libopenblas-dev
-opencv-python-headless
+opencv-python
