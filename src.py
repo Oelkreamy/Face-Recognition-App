@@ -21,8 +21,9 @@ classNames = []
 # Read images from folder
 for cls in os.listdir(path):
     curImg = cv2.imread(os.path.join(path, cls))
-    images.append(curImg)
-    classNames.append(os.path.splitext(cls)[0])
+    if curImg is not None:
+        images.append(curImg)
+        classNames.append(os.path.splitext(cls)[0])
 
 # Function to Encode Faces
 def find_encoding(images):
@@ -34,8 +35,10 @@ def find_encoding(images):
             encodeList.append(encode[0])  # Append encoding
     return encodeList
 
+# Encode known faces
+encodeListKnown = find_encoding(images) if images else []
+
 if images:
-    encodeListKnown = find_encoding(images)
     st.success(f"✅ Loaded {len(images)} known faces")
 else:
     st.warning("⚠️ No known faces found! Upload images first.")
@@ -56,6 +59,8 @@ start_cam = st.button("Start Webcam")
 
 if start_cam:
     cap = cv2.VideoCapture(0)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
     frame_window = st.image([])  # Streamlit image placeholder
 
     while cap.isOpened():
@@ -72,10 +77,10 @@ if start_cam:
 
         for encodeFace, faceLoc in zip(encodeCurrFrame, facesCurrFrame):
             faceDis = face_recognition.face_distance(encodeListKnown, encodeFace)
-            matchIndex = np.argmin(faceDis)
+            matchIndex = np.argmin(faceDis) if len(faceDis) > 0 else None
 
             name = "Unknown"
-            if faceDis[matchIndex] < 0.50:
+            if matchIndex is not None and faceDis[matchIndex] < 0.50:
                 name = classNames[matchIndex].upper()
 
             # Scale up face locations
