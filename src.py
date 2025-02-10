@@ -3,7 +3,6 @@ import cv2
 import numpy as np
 import face_recognition
 import os
-from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
 
 # Streamlit Page Config
 st.set_page_config(page_title="Real-Time Face Recognition", layout="wide")
@@ -51,10 +50,20 @@ if uploaded_files:
             f.write(uploaded_file.read())
     st.success("✅ New images added! Refresh to load them.")
 
-# Face Recognition with WebRTC
-class FaceRecognitionTransformer(VideoTransformerBase):
-    def transform(self, frame):
-        img = frame.to_ndarray(format="bgr24")
+# Start Webcam
+st.subheader("🎥 Live Face Recognition")
+start_cam = st.button("Start Webcam")
+
+if start_cam:
+    cap = cv2.VideoCapture(0)
+    frame_window = st.image([])  # Streamlit image placeholder
+
+    while cap.isOpened():
+        success, img = cap.read()
+        if not success:
+            st.error("❌ Failed to access webcam!")
+            break
+
         imgS = cv2.resize(img, (0, 0), None, 0.25, 0.25)  # Resize for faster processing
         imgS = cv2.cvtColor(imgS, cv2.COLOR_BGR2RGB)
 
@@ -74,10 +83,14 @@ class FaceRecognitionTransformer(VideoTransformerBase):
 
             # Draw Rectangle & Label
             color = (0, 255, 0) if name != "Unknown" else (0, 0, 255)
-            cv2.rectangle(img, (x1, y1 - 10), (x2, y2 + 10), color, 2)
-            cv2.putText(img, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 2)
+            cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
+            cv2.rectangle(img, (x1, y2 - 35), (x2, y2), color, cv2.FILLED)
+            cv2.putText(img, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
 
-        return img
+        # Show smooth video
+        frame_window.image(img, channels="BGR", use_column_width=True)
 
-st.subheader("🎥 Live Face Recognition")
-webrtc_streamer(key="face_recognition", video_transformer_factory=FaceRecognitionTransformer)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    cap.release()
