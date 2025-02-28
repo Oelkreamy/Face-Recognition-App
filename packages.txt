@@ -1,1 +1,1 @@
-cmake
+cmake==3.31.4
